@@ -4,12 +4,12 @@ dotenv.config();
 
 export const {
   MONGO_URI,
-  PORT = 5000,
+  PORT = process.env.PORT || 5000,
   JWT_SECRET,
   TWILIO_PHONE,
   TWILIO_SID,
   TWILIO_AUTH_TOKEN,
-  NODE_ENV = "development",
+  NODE_ENV = "production",
   CLOUDINARY_CLOUD_NAME,
   CLOUDINARY_API_KEY,
   CLOUDINARY_API_SECRET,
