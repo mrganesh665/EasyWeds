@@ -13,7 +13,7 @@ export const {
   CLOUDINARY_CLOUD_NAME,
   CLOUDINARY_API_KEY,
   CLOUDINARY_API_SECRET,
-  FRONTEND_URL = "http://localhost:5173",
+  FRONTEND_URL = "https://easyweds.onrender.com",
   EMAIL_USERNAME,
   EMAIL_PASSWORD,
 } = process.env;
