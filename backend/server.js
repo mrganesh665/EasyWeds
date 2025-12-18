@@ -20,7 +20,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
 
-app.set("trust proxy", 1);
+
 
 dotenv.config();
 
@@ -37,6 +37,7 @@ async function startServer() {
     const app = express();
 
     app.use(helmet());
+    app.set("trust proxy", 1);
     app.use(limiter);
     app.use(cors({ origin: FRONTEND_URL, credentials: true }));
     app.use(express.json());
