@@ -20,6 +20,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
 
+app.set("trust proxy", 1);
+
 dotenv.config();
 
 const limiter = rateLimit({
