@@ -45,6 +45,16 @@ async function startServer() {
     app.use(cookieParser());
     app.use(fileUpload({ limits: { fileSize: 5 * 1024 * 1024 }, abortOnLimit: true }));
 
+
+    app.get("/", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Backend is running 🚀",
+    environment: process.env.NODE_ENV,
+  });
+});
+
+
     // Ensure uploads directory exists
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
