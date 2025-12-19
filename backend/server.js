@@ -38,7 +38,7 @@ async function startServer() {
     const allowedOrigins = [
       FRONTEND_URL,
   "https://easy-weds-mcnuhit7t-ganesh-s-projects.vercel.app",
-  "https://easyweds.onrender.com",
+  "https://easy-weds.vercel.app",
 ];
 
     app.use(helmet());
