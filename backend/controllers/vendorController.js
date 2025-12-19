@@ -79,7 +79,7 @@ export const requestOtp = async (req, res) => {
     );
 
     await sendOTP(phone, otp);
-    res.status(200).json({ message: "OTP sent successfully" });
+    res.status(200).json({ message: "OTP sent successfully"  , otp: otp});
   } catch (error) {
     console.error("Vendor OTP request error:", error);
     res.status(500).json({ message: "Server error" });

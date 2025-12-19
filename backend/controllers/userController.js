@@ -60,7 +60,7 @@ export const signIn = async (req, res) => {
     )
 
     await sendOTP(phone, otp)
-    res.status(200).json({ message: "OTP sent successfully" })
+    res.status(200).json({ message: "OTP sent successfully" , otp: otp })
   } catch (error) {
     console.error("User sign-in error:", error)
     res.status(500).json({ message: "Server error" })
@@ -157,7 +157,7 @@ export const signUp = async (req, res) => {
     )
 
     await sendOTP(phone, otp)
-    res.status(200).json({ message: "OTP sent successfully", full_name })
+    res.status(200).json({ message: "OTP sent successfully", full_name , otp: otp})
   } catch (error) {
     console.error("User sign-up error:", error)
     res.status(500).json({ message: "Server error" })
@@ -291,7 +291,7 @@ const normalized = phone.replace(/^(\+91|0)/, "");
     )
 
     await sendOTP(phone, otp)
-    res.status(200).json({ message: "OTP sent successfully", phone, password, vendorRequest })
+    res.status(200).json({ message: "OTP sent successfully", phone, password, vendorRequest , otp: otp})
   } catch (error) {
     console.error("Vendor register error:", error)
     res.status(500).json({ message: "Server error" })
