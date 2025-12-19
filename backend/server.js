@@ -35,11 +35,16 @@ async function startServer() {
     await connectDB();
 
     const app = express();
+    const allowedOrigins = [
+      FRONTEND_URL,
+  "https://easy-weds-mcnuhit7t-ganesh-s-projects.vercel.app",
+  "https://easyweds.onrender.com",
+];
 
     app.use(helmet());
     app.set("trust proxy", 1);
     app.use(limiter);
-    app.use(cors({ origin: FRONTEND_URL, credentials: true }));
+    app.use(cors({ origin: allowedOrigins, credentials: true }));
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
     app.use(cookieParser());
