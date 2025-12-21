@@ -7,115 +7,48 @@ import { NODE_ENV } from "../config/env.js"
 import bcrypt from "bcrypt"
 import { uploadBrandIcon } from "../utils/cloudinary.js"
 
-// export const signIn = async (req, res) => {
-//   const { phone } = req.body
-
-//  if (!phone) {
-//     return res.status(400).json({ message: "Phone is required" });
-//   }
-
-//   // Normalize input by removing +91 or leading 0
-//   const normalized = phone.replace(/^(\+91|0)/, "");
-
-//   // Validate: must be 10 digits & start with 6–9
-//   const phoneRegex = /^[6-9]\d{9}$/;
-
-//   if (!phoneRegex.test(normalized)) {
-//     return res.status(400).json({ message: "Invalid phone number" });
-//   }
-
-
-//   try {
-//     const user = await User.findOne({ phone })
-//     if (!user) return res.status(404).json({ message: "User not found" })
-
-//     const isBlocked = await BlockedUsers.findOne({ phone })
-//     if (isBlocked) return res.status(403).json({ message: "User is blocked" })
-
-//     const otpRecord = await OTP.findOne({ phone, role: "user" }) // Always use "user" role for OTP
-//     const now = new Date()
-//     if (otpRecord && otpRecord.requestCount >= 5) {
-//       const cooldownEnd = new Date(otpRecord.lastRequestTime.getTime() + 15 * 60 * 1000)
-//       if (now < cooldownEnd) {
-//         const waitTime = Math.ceil((cooldownEnd - now) / 60000)
-//         return res.status(429).json({ message: `Too many requests. Please wait ${waitTime} minutes.` })
-//       } else {
-//         otpRecord.requestCount = 0
-//       }
-//     }
-
-//     const otp = Math.floor(100000 + Math.random() * 900000).toString()
-//     const expiresAt = new Date(Date.now() + 10 * 60 * 1000)
-
-//     await OTP.findOneAndUpdate(
-//       { phone, role: "user" },
-//       {
-//         otpCode: otp,
-//         expiresAt,
-//         requestCount: (otpRecord?.requestCount || 0) + 1,
-//         lastRequestTime: now,
-//         verified: false,
-//       },
-//       { upsert: true },
-//     )
-
-//     await sendOTP(phone, otp)
-//     res.status(200).json({ message: "OTP sent successfully" , otp: otp })
-//   } catch (error) {
-//     console.error("User sign-in error:", error)
-//     res.status(500).json({ message: "Server error" })
-//   }
-// }
-
 export const signIn = async (req, res) => {
+  const { phone } = req.body
+
+ if (!phone) {
+    return res.status(400).json({ message: "Phone is required" });
+  }
+
+  // Normalize input by removing +91 or leading 0
+  const normalized = phone.replace(/^(\+91|0)/, "");
+
+  // Validate: must be 10 digits & start with 6–9
+  const phoneRegex = /^[6-9]\d{9}$/;
+
+  if (!phoneRegex.test(normalized)) {
+    return res.status(400).json({ message: "Invalid phone number" });
+  }
+
+
   try {
-    const { phone } = req.body;
+    const user = await User.findOne({ phone })
+    if (!user) return res.status(404).json({ message: "User not found" })
 
-    if (!phone) {
-      return res.status(400).json({ message: "Phone is required" });
-    }
+    const isBlocked = await BlockedUsers.findOne({ phone })
+    if (isBlocked) return res.status(403).json({ message: "User is blocked" })
 
-    // Normalize phone
-    const normalizedPhone = phone.replace(/^(\+91|0)/, "");
-
-    // Validate
-    const phoneRegex = /^[6-9]\d{9}$/;
-    if (!phoneRegex.test(normalizedPhone)) {
-      return res.status(400).json({ message: "Invalid phone number" });
-    }
-
-    // ALWAYS use normalized phone
-    const user = await User.findOne({ phone: normalizedPhone });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    const isBlocked = await BlockedUsers.findOne({ phone: normalizedPhone });
-    if (isBlocked) {
-      return res.status(403).json({ message: "User is blocked" });
-    }
-
-    const now = new Date();
-    const otpRecord = await OTP.findOne({ phone: normalizedPhone, role: "user" });
-
+    const otpRecord = await OTP.findOne({ phone, role: "user" }) // Always use "user" role for OTP
+    const now = new Date()
     if (otpRecord && otpRecord.requestCount >= 5) {
-      const cooldownEnd = new Date(
-        otpRecord.lastRequestTime.getTime() + 15 * 60 * 1000
-      );
-
+      const cooldownEnd = new Date(otpRecord.lastRequestTime.getTime() + 15 * 60 * 1000)
       if (now < cooldownEnd) {
-        const waitTime = Math.ceil((cooldownEnd - now) / 60000);
-        return res
-          .status(429)
-          .json({ message: `Too many requests. Please wait ${waitTime} minutes.` });
+        const waitTime = Math.ceil((cooldownEnd - now) / 60000)
+        return res.status(429).json({ message: `Too many requests. Please wait ${waitTime} minutes.` })
+      } else {
+        otpRecord.requestCount = 0
       }
     }
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    const otp = Math.floor(100000 + Math.random() * 900000).toString()
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000)
 
     await OTP.findOneAndUpdate(
-      { phone: normalizedPhone, role: "user" },
+      { phone, role: "user" },
       {
         otpCode: otp,
         expiresAt,
@@ -123,26 +56,18 @@ export const signIn = async (req, res) => {
         lastRequestTime: now,
         verified: false,
       },
-      { upsert: true }
-    );
+      { upsert: true },
+    )
 
-    // 🔒 Protect Twilio
-    try {
-      await sendOTP(`+91${normalizedPhone}`, otp);
-    } catch (twilioError) {
-      console.error("Twilio OTP failed:", twilioError.message);
-      return res
-        .status(400)
-        .json({ message: "Failed to send OTP. Please try again later." });
-    }
-
-    return res.status(200).json({ message: "OTP sent successfully" });
-
+    await sendOTP(phone, otp)
+    res.status(200).json({ message: "OTP sent successfully" , otp: otp })
   } catch (error) {
-    console.error("User sign-in error:", error);
-    return res.status(500).json({ message: "Server error" });
+    console.error("User sign-in error:", error)
+    res.status(500).json({ message: "Server error" })
   }
-};
+}
+
+
 
 
 export const verifySignInOtp = async (req, res) => {
