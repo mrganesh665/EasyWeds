@@ -204,7 +204,7 @@ export const signUp = async (req, res) => {
 
 
   try {
-    const existingUser = await User.findOne({ phone })
+    const existingUser = await User.findOne({ phone: normalized })
     if (existingUser) return res.status(400).json({ message: "Phone already registered" })
 
     const otpRecord = await OTP.findOne({ phone, role: "user" })
